@@ -7,17 +7,17 @@ import {
   mixin
 } from "@nestjs/common";
 
-import { Transmit, TransmitOptions } from "@quicksend/transmit";
-
-import { Observable, EMPTY } from "rxjs";
+import { Observable, throwError } from "rxjs";
 import { catchError } from "rxjs/operators";
 
-import { TransmitModuleOptions } from "./transmit.interfaces";
+import { Transmit, TransmitOptions } from "@quicksend/transmit";
 
 import { TRANSMIT_MODULE_OPTIONS } from "./transmit.constants";
 
+import { TransmitModuleOptions } from "./transmit.interfaces";
+
 export const TransmitInterceptor = (
-  localTransmitOptions: Partial<TransmitOptions> = {}
+  transmitOptions: Partial<TransmitOptions> = {}
 ): Type<NestInterceptor> => {
   class MixinInterceptor implements NestInterceptor {
     constructor(
@@ -30,27 +30,21 @@ export const TransmitInterceptor = (
 
       const transmit = new Transmit({
         ...this.transmitOptions,
-        ...localTransmitOptions
+        ...transmitOptions
       });
 
       const { fields, files } = await transmit.parseAsync(req);
-
-      // If the upload was aborted, skip the controller
-      if (transmit.aborted) {
-        return EMPTY;
-      }
 
       req.fields = fields;
       req.files = files;
 
       return next.handle().pipe(
-        // If the controller throws an error, then roll back all uploads
-        catchError(async (error) => {
-          if (files.length > 0) {
-            await transmit.deleteUploadedFiles();
-          }
-
-          throw error;
+        // Rollback uploads if an error is thrown after the interceptor
+        catchError((error) => {
+          return transmit
+            .deleteUploadedFiles()
+            .then(() => throwError(error))
+            .catch((err) => throwError(err));
         })
       );
     }

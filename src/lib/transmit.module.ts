@@ -4,7 +4,7 @@ import { DynamicModule, Module, Provider } from "@nestjs/common";
 
 import { randomStringGenerator } from "@nestjs/common/utils/random-string-generator.util";
 
-import { TransmitService } from "./transmit.service";
+import { TRANSMIT_MODULE_ID, TRANSMIT_MODULE_OPTIONS } from "./transmit.constants";
 
 import {
   TransmitModuleAsyncOptions,
@@ -12,7 +12,7 @@ import {
   TransmitModuleOptionsFactory
 } from "./transmit.interfaces";
 
-import { TRANSMIT_MODULE_ID, TRANSMIT_MODULE_OPTIONS } from "./transmit.constants";
+import { TransmitService } from "./transmit.service";
 
 @Module({
   exports: [TransmitService, TRANSMIT_MODULE_OPTIONS],

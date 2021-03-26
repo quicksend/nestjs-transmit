@@ -1,7 +1,9 @@
-import { INestApplication } from "@nestjs/common";
+import { Server } from "http";
+
+import { HttpStatus, INestApplication } from "@nestjs/common";
 import { Test } from "@nestjs/testing";
 
-import { Server } from "http";
+import { TransmitErrorCodes } from "@quicksend/transmit";
 
 import request from "supertest";
 
@@ -31,20 +33,29 @@ describe("Transmit", () => {
     };
 
     const file = {
-      content: Buffer.from([]),
       field: "file",
       name: "first.txt"
     };
 
     const response = await request(server)
       .post("/upload")
-      .attach(file.field, file.content, file.name)
-      .field(field.name, field.value)
-      .expect(201);
+      .attach(file.field, Buffer.from([]), file.name)
+      .field(field.name, field.value);
 
     expect(response.body).toEqual({
       fields: [expect.objectContaining(field)],
-      files: [expect.objectContaining({ name: file.name })]
+      files: [expect.objectContaining(file)]
     });
+  });
+
+  it("should return an http exception", async () => {
+    const response = await request(server).post("/upload");
+
+    expect(response.body).toEqual(
+      expect.objectContaining({
+        message: TransmitErrorCodes.UNSUPPORTED_CONTENT_TYPE,
+        statusCode: HttpStatus.UNSUPPORTED_MEDIA_TYPE
+      })
+    );
   });
 });
