@@ -7,7 +7,7 @@ import {
   mixin
 } from "@nestjs/common";
 
-import { Observable, throwError } from "rxjs";
+import { Observable } from "rxjs";
 import { catchError } from "rxjs/operators";
 
 import { Transmit, TransmitOptions } from "@quicksend/transmit";
@@ -39,12 +39,11 @@ export const TransmitInterceptor = (
       req.files = files;
 
       return next.handle().pipe(
-        // Rollback uploads if an error is thrown after the interceptor
-        catchError((error) => {
-          return transmit
-            .deleteUploadedFiles()
-            .then(() => throwError(error))
-            .catch((err) => throwError(err));
+        catchError(async (error) => {
+          // Rollback uploads if an error is thrown after the interceptor
+          await transmit.deleteUploadedFiles();
+
+          throw error;
         })
       );
     }
