@@ -1,6 +1,6 @@
 {
   "name": "@quicksend/nestjs-transmit",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "Integrate Transmit into NestJS applications",
   "files": [
     "dist/**/*"
