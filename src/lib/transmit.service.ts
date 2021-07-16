@@ -33,10 +33,6 @@ export class TransmitService {
     return this.transmitModuleOptions.manager;
   }
 
-  async deleteFile(file: IncomingFile): Promise<void> {
-    return this.manager.deleteFile(file);
-  }
-
   parseAsync(
     req: IncomingMessage,
     localTransmitOptions: Partial<TransmitOptions> = {}
@@ -45,5 +41,9 @@ export class TransmitService {
       ...this.transmitModuleOptions,
       ...localTransmitOptions
     }).parseAsync(req);
+  }
+
+  async removeFile(file: IncomingFile): Promise<void> {
+    return this.manager.removeFile(file);
   }
 }

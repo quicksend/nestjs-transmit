@@ -41,7 +41,7 @@ export const TransmitInterceptor = (
       return next.handle().pipe(
         catchError(async (error) => {
           // Rollback uploads if an error is thrown after the interceptor
-          await transmit.deleteUploadedFiles();
+          await transmit.removeUploadedFiles();
 
           throw error;
         })
