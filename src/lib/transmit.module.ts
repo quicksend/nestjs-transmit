@@ -12,11 +12,8 @@ import {
   TransmitModuleOptionsFactory
 } from "./transmit.interfaces";
 
-import { TransmitService } from "./transmit.service";
-
 @Module({
-  exports: [TransmitService, TRANSMIT_MODULE_OPTIONS],
-  providers: [TransmitService]
+  exports: [TRANSMIT_MODULE_OPTIONS]
 })
 export class TransmitModule {
   static register(options: TransmitModuleOptions = {}): DynamicModule {
